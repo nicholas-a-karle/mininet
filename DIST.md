@@ -35,7 +35,48 @@
       sg0             sg1
     (N0, M0) - I -> (N1, M1)
 
+    We extend the single-subgraph version like so
+
+    Params:
+    N: List[int]
+    M: List[List[int]]
+    o: int
+
+    Init:
+    dist_sum = [0 ... 0]: len = len(N)
+    n_sum_prev = [0 ... 0]: len = len(N)
+    n_prev = [0 ... 0]: len = len(N)
+    n_now = [0 ... 0]: len = len(N)
+    done = [0 ... 0]: len = len(N)
+    
+    Do:
+    n_now[o] = 1
+
+    for d in range(some_maximum_value):
+
+        // iteration operations
+        n_prev = n_now
+        n_sum_prev += n_prev
+        n_now = [0 ... 0]: len = len(N)
+
+        for each subgraph k:
+            if done[k] flagged: continue
+            
+            sum = S(M[i, k] * (n_prev[i] / N[i])) for each sugraph i
+            n_now[k] = sum - n_sum_prev[k]
+
+            if n_now[k] overflows total:
+                n_now[k] limited
+                done[k] is flagged as True
+
+        // add vectors    
+        dist_sum[k] += n_now[k] * (d+1)
+
+
 # What is Missed by these Function
-    It is very possible that a graph such that there are two subgraphs
-    S0 has a density of 0.5, with 100 members
-    S1 has a density of 0.5, with 100 members
+    The single-subgraph version can have it's maximum error with calculations when M=2N
+    Here it estimates avg_dist = 4.22
+
+    The maximum avg_dist this can be is a straight line, where avg_dist ~ 33
+    
+    This is a 87% error
