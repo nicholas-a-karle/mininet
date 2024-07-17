@@ -80,3 +80,6 @@
     The maximum avg_dist this can be is a straight line, where avg_dist ~ 33
     
     This is a 87% error
+
+    There is also a high probability at low density that the estimation fails
+    This is mostly true for graphs where |E| < 2|V|
