@@ -99,6 +99,50 @@ class mininet(nx.DiGraph):
             dist_sum[i] /= self[i]['size']
 
         return dist_sum
+    
+    def subgraph_closeness_centrality(self, sg) -> List[float]:
+        # input checking
+        if (not (0 <= sg < len(self))): raise ValueError(f"Subgraph {sg} does not exist in {self}!")
+
+        # initializations
+        dist_sum = np.zeros(len(self))
+        n_sum_prev = np.zeros(len(self))
+        n_prev = np.zeros(len(self))
+        n_now = np.zeros(len(self))
+        done = np.zeros(len(self))
+
+        # first operation
+        n_now[sg] = 1
+
+        # the loop
+        # d represents the degree of the neighbor, distance
+        for d in range(self.max_iters['dist_base'] + self.max_iters['dist_per_node'] * len(self)):
+            # iteration operations
+            n_prev = n_now
+            n_sum_prev += n_prev
+            n_now = np.zeros(len(self))
+
+            for k in range(len(self)):
+                if done[k]: continue
+
+                # summing and subtracting
+                unadj_sum = 0
+                for i in range(len(self)):
+                    unadj_sum += self.edges[i][k]['edges'] * (n_prev[i] / self[i]['size'])
+                n_now[k] = unadj_sum - n_sum_prev[k]
+
+                # check
+                if n_now[k] > self[k]['size'] - n_sum_prev[k]:
+                    n_now[k] = self[k]['size'] - n_sum_prev[k]
+                    done[k] = True
+
+            # add to distance sum
+            dist_sum += (n_now * (d+1))
+        
+        # finish
+        sum_dist_sum = sum(dist_sum)
+        
+        return 1 / sum_dist_sum
 
     def subgraph_density(self, sg1: int, sg2: int) -> float:
         # return the chances that the distance between these two is 1
