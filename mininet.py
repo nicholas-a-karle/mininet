@@ -49,13 +49,13 @@ class mininet(nx.DiGraph):
             for node in group['nodes']:
                 self.node_sg_dict[node] = group
     
-    def all_calc_subgraph_distances(self) -> List[List[float]]:
+    def all_subgraph_distances(self) -> List[List[float]]:
         dists = []
         for sg in self:
             dists.append(self.calc_subgraph_distances(sg))
         return np.array(dists)
 
-    def calc_subgraph_distances(self, sg) -> List[float]:
+    def subgraph_distances(self, sg) -> List[float]:
         # input checking
         if (not (0 <= sg < len(self))): raise ValueError(f"Subgraph {sg} does not exist in {self}!")
 
@@ -106,6 +106,21 @@ class mininet(nx.DiGraph):
             return self.edges[sg1][sg2]['edges'] / (self[sg1]['size'] * (self[sg2]['size']-1))
         else:
             return self.edges[sg1][sg2]['edges'] / (self[sg1]['size'] * self[sg2]['size'])
+        
+    def subgraph_out_degree_centrality(self, sg: int) -> float:
+        degree_centrality = 0
+        for i in range(len(self)):
+            degree_centrality += self.edges[sg][i]['edges'] / self[sg]['size']
+        return degree_centrality
+
+    def subgraph_in_degree_centrality(self, sg: int) -> float:
+        degree_centrality = 0
+        for i in range(len(self)):
+            degree_centrality += self.edges[i][sg]['edges'] / self[sg]['size']
+        return degree_centrality
+
+    def subgraph_total_degree_centrality(self, sg: int) -> float:
+        return self.subgraph_in_degree_centrality(self, sg) + self.subgraph_out_degree_centrality(self, sg)
 
     def find_node_subgraph(self, node: int) -> int:
         return self.node_sg_dict[node]
